@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 )
 
 type FileTransactionLogger struct {
@@ -57,17 +56,9 @@ func (f *FileTransactionLogger) ReadEvents() chan Event {
 		for scanner.Scan() {
 			var e Event
 			line := scanner.Text()
-			words := strings.Fields(line)
-			if len(words) == 3 {
-				fmt.Sscanf(
-					line,
-					"%d\t%d\t%s\t\n", &e.Sequence, &e.EventType, &e.Key)
-
-			} else {
-				fmt.Sscanf(
-					line,
-					"%d\t%d\t%s\t%s\n", &e.Sequence, &e.EventType, &e.Key, &e.Value)
-			}
+			fmt.Sscanf(
+				line,
+				"%d\t%d\t%s\t%s\n", &e.Sequence, &e.EventType, &e.Key, &e.Value)
 
 			log.Printf("Loading event %+v", e)
 			f.LastSequence++
