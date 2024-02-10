@@ -20,12 +20,14 @@ func handlerRoot(w http.ResponseWriter, r *http.Request) {
 func handlerGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
+
 	value, err := store.Get(key)
 	if err != nil {
 		log.Printf("key: '%s' %s", key, err.Error())
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+
 	log.Printf("Value of '%s' is '%s'", key, value)
 
 	w.WriteHeader(http.StatusFound)
@@ -33,14 +35,15 @@ func handlerGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerPut(w http.ResponseWriter, r *http.Request) {
+	var kv KeyValue
 	defer r.Body.Close()
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("Error parsing request body: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	var kv KeyValue
 
 	err = json.Unmarshal(body, &kv)
 	if err != nil {
@@ -51,7 +54,9 @@ func handlerPut(w http.ResponseWriter, r *http.Request) {
 
 	store.Put(kv.Key, kv.Value)
 	logger.WritePut(kv.Key, kv.Value)
+
 	log.Printf("A new key value pair is added: %+v", kv)
+
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(fmt.Sprintf("key: '%s' has been added with value: '%s'", kv.Key, kv.Value)))
 }
@@ -59,12 +64,14 @@ func handlerPut(w http.ResponseWriter, r *http.Request) {
 func handlerDelete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
+
 	err := store.Delete(key)
 	if err != nil {
 		log.Printf("key: '%s' %s", key, err.Error())
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+
 	logger.WriteDelete(key)
 
 	log.Printf("key: %s has been deleted", key)

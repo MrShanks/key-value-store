@@ -44,7 +44,6 @@ func (f *FileTransactionLogger) Run() {
 			f.LastSequence++
 			fmt.Fprintf(f.File, "%d\t%d\t%s\t%s\n", f.LastSequence, e.EventType, e.Key, e.Value)
 		}
-
 	}()
 }
 
@@ -59,16 +58,17 @@ func (f *FileTransactionLogger) ReadEvents() chan Event {
 			var e Event
 			line := scanner.Text()
 			words := strings.Fields(line)
-
 			if len(words) == 3 {
 				fmt.Sscanf(
 					line,
 					"%d\t%d\t%s\t\n", &e.Sequence, &e.EventType, &e.Key)
 
+			} else {
+				fmt.Sscanf(
+					line,
+					"%d\t%d\t%s\t%s\n", &e.Sequence, &e.EventType, &e.Key, &e.Value)
 			}
-			fmt.Sscanf(
-				line,
-				"%d\t%d\t%s\t%s\n", &e.Sequence, &e.EventType, &e.Key, &e.Value)
+
 			log.Printf("Loading event %+v", e)
 			outEvent <- e
 		}
