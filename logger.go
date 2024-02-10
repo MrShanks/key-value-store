@@ -70,6 +70,7 @@ func (f *FileTransactionLogger) ReadEvents() chan Event {
 			}
 
 			log.Printf("Loading event %+v", e)
+			f.LastSequence++
 			outEvent <- e
 		}
 	}()
